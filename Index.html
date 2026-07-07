@@ -1,127 +1,424 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Business Efficiency Score (BES)</title>
+  <title>Business Efficiency Score (BES) — FARAYYA</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    body { background-color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-    .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
-    .dimension-header { background-color: #0f172a; color: white; border-radius: 12px 12px 0 0; padding: 18px 24px; font-size: 1.1rem; }
-    .btn-submit { background-color: #0284c7; border: none; padding: 14px; font-weight: 600; font-size: 1.1rem; }
-    .btn-submit:hover { background-color: #0369a1; }
-    .question-box { border-bottom: 1px solid #f1f5f9; padding: 20px 0; }
-    .question-box:last-child { border-bottom: none; }
-    .radio-group label { cursor: pointer; padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 6px; display: inline-block; }
-    .profile-section-title {
-      background-color: #0f172a;
-      color: white;
-      border-radius: 12px 12px 0 0;
-      padding: 18px 24px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #e0e7ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #0f172a;
+      --slate: #64748b;
+      --bg: #f8fafc;
     }
-    .required-mark { color: #ef4444; }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+      padding: 64px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 0%, rgba(99,102,241,0.35) 0%, transparent 70%),
+                  radial-gradient(ellipse at 10% 100%, rgba(16,185,129,0.2) 0%, transparent 60%);
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: #818cf8; }
+    .hero p { color: #94a3b8; font-size: 1.1rem; max-width: 520px; margin: 0 auto; }
+
+    /* ── MAIN CONTENT ── */
+    .main-wrap { max-width: 820px; margin: -32px auto 60px; padding: 0 16px; position: relative; z-index: 2; }
+
+    /* ── CARDS ── */
+    .bes-card {
+      background: #fff;
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .bes-card-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 18px 24px;
+      background: linear-gradient(90deg, #0f172a, #1e293b);
+      color: #fff;
+    }
+    .bes-card-header .icon {
+      width: 36px; height: 36px;
+      background: rgba(99,102,241,0.3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .bes-card-header .title {
+      font-weight: 700; font-size: 0.85rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .bes-card-header .subtitle { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+    .bes-card-body { padding: 28px 28px; }
+
+    /* ── FORM INPUTS ── */
+    .form-label { font-weight: 600; font-size: 0.875rem; color: #374151; margin-bottom: 6px; }
+    .form-control {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.925rem;
+      transition: border-color .2s, box-shadow .2s;
+      background: #f8fafc;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+      background: #fff;
+      outline: none;
+    }
+    .input-group-text {
+      border: 1.5px solid #e2e8f0; border-left: none;
+      background: #f1f5f9; color: #64748b; font-size: 0.85rem;
+      border-radius: 0 10px 10px 0;
+    }
+    .input-group .form-control { border-radius: 10px 0 0 10px; }
+    .required-mark { color: #ef4444; margin-left: 2px; }
+
+    /* ── LOADING ── */
+    #loading { padding: 60px 0; text-align: center; }
+    .loading-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid #e0e7ff;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── QUESTION CARDS ── */
+    .question-box {
+      padding: 22px 0;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background .15s;
+    }
+    .question-box:last-child { border-bottom: none; }
+    .question-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px;
+      background: var(--primary-light); color: var(--primary-dark);
+      border-radius: 50%; font-size: 0.72rem; font-weight: 700;
+      margin-right: 10px; flex-shrink: 0;
+    }
+    .question-text { font-weight: 600; font-size: 0.95rem; color: #1e293b; line-height: 1.5; }
+
+    /* ── CUSTOM RADIO ── */
+    .answer-options { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .answer-options input[type="radio"] { display: none; }
+    .answer-option label {
+      cursor: pointer;
+      display: flex; align-items: center;
+      padding: 9px 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      background: #fff;
+      transition: all .18s;
+      user-select: none;
+    }
+    .answer-option label:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
+    .answer-option input[type="radio"]:checked + label {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+    }
+    .answer-option.yes input[type="radio"]:checked + label { background: #10b981; border-color: #10b981; box-shadow: 0 4px 12px rgba(16,185,129,0.35); }
+    .answer-option.partial input[type="radio"]:checked + label { background: #f59e0b; border-color: #f59e0b; color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
+    .answer-option.no input[type="radio"]:checked + label { background: #ef4444; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
+    .answer-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0; opacity: .6;
+    }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-bes-submit {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      border: none; border-radius: 14px;
+      color: #fff; font-weight: 700; font-size: 1rem;
+      padding: 16px 32px;
+      width: 100%; margin-top: 28px;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+      cursor: pointer;
+    }
+    .btn-bes-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99,102,241,0.5);
+    }
+    .btn-bes-submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+    .btn-bes-submit .btn-icon { margin-right: 8px; }
+
+    /* ── RESULT HERO ── */
+    .result-hero {
+      border-radius: 20px;
+      padding: 48px 32px;
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative; overflow: hidden;
+    }
+    .result-hero.excellent { background: linear-gradient(135deg, #064e3b, #065f46); }
+    .result-hero.moderate  { background: linear-gradient(135deg, #78350f, #92400e); }
+    .result-hero.critical  { background: linear-gradient(135deg, #7f1d1d, #991b1b); }
+    .result-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 60%);
+    }
+    .result-hero-content { position: relative; z-index: 1; }
+    .result-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+    .result-score { font-size: clamp(4rem, 15vw, 6rem); font-weight: 900; color: #fff; line-height: 1; margin-bottom: 12px; }
+    .result-status-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; font-weight: 700; font-size: 0.9rem;
+      padding: 8px 20px; border-radius: 100px; margin-bottom: 16px;
+    }
+    .result-desc { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+    /* ── DIMENSION RESULT CARDS ── */
+    .dim-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.04);
+      border-left: 4px solid transparent;
+      transition: transform .2s;
+    }
+    .dim-card:hover { transform: translateX(4px); }
+    .dim-card.excellent { border-left-color: #10b981; }
+    .dim-card.moderate  { border-left-color: #f59e0b; }
+    .dim-card.critical  { border-left-color: #ef4444; }
+    .dim-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .dim-name { font-weight: 700; font-size: 1rem; color: #1e293b; }
+    .dim-pill {
+      font-size: 0.75rem; font-weight: 700;
+      padding: 5px 14px; border-radius: 100px;
+    }
+    .pill-excellent { background: #d1fae5; color: #065f46; }
+    .pill-moderate  { background: #fef3c7; color: #92400e; }
+    .pill-critical  { background: #fee2e2; color: #991b1b; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { margin-bottom: 12px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: #64748b; margin-bottom: 5px; font-weight: 600; }
+    .progress { height: 8px; border-radius: 100px; background: #f1f5f9; overflow: visible; }
+    .progress-bar {
+      border-radius: 100px;
+      transition: width 1.2s cubic-bezier(.22,1,.36,1);
+      position: relative;
+    }
+    .progress-bar.excellent { background: linear-gradient(90deg, #34d399, #10b981); }
+    .progress-bar.moderate  { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+    .progress-bar.critical  { background: linear-gradient(90deg, #f87171, #ef4444); }
+
+    .dim-rec {
+      font-size: 0.84rem; color: #64748b;
+      background: #f8fafc; border-radius: 8px;
+      padding: 10px 14px;
+      border-left: 3px solid #e2e8f0;
+    }
+    .dim-rec strong { color: #374151; }
+
+    /* ── RESET BUTTON ── */
+    .btn-reset {
+      display: block; width: 100%; margin-top: 28px;
+      padding: 14px;
+      background: transparent;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      font-weight: 700; font-size: 0.95rem; color: #64748b;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-reset:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
+
+    /* ── FOOTER ── */
+    .bes-footer { text-align: center; padding: 24px; color: #94a3b8; font-size: 0.8rem; }
+
+    /* ── PROGRESS STEP ── */
+    .step-indicator {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 28px;
+    }
+    .step-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #e2e8f0; transition: background .3s, transform .3s;
+    }
+    .step-dot.active { background: var(--primary); transform: scale(1.3); }
+    .step-dot.done   { background: #10b981; }
+
+    @media (max-width: 576px) {
+      .hero { padding: 40px 16px 64px; }
+      .bes-card-body { padding: 20px 18px; }
+      .answer-options { gap: 8px; }
+      .answer-option label { padding: 8px 14px; font-size: 0.8rem; }
+    }
   </style>
 </head>
 <body>
 
-<div class="container my-5" style="max-width: 800px;">
-  <div class="text-center mb-5">
-    <h2 class="fw-bold" style="color:#0f172a;">Business Efficiency Score (BES)</h2>
-    <p class="text-secondary fs-5">Evaluasi Kematangan Operasional & Analisis Kebocoran Bisnis</p>
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <div class="hero-content">
+    <h1>Seberapa Efisien<br><span>Bisnis Anda?</span></h1>
+    <p>Diagnosa kebocoran operasional bisnis Anda dalam hitungan menit dan dapatkan rekomendasi strategis yang actionable.</p>
   </div>
+</div>
+
+<!-- ═══════════ FORM AREA ═══════════ -->
+<div class="main-wrap">
 
   <div id="formContainer">
 
-    <!-- ===== PROFIL PERUSAHAAN ===== -->
-    <div class="card mb-4 overflow-hidden">
-      <div class="profile-section-title">Data Perusahaan / Klien</div>
-      <div class="card-body p-4">
+    <!-- STEP INDICATOR -->
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step-dot active" id="dot1"></div>
+      <div style="width:32px; height:2px; background:#e2e8f0; border-radius:2px;"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div style="width:32px; height:2px; background:#e2e8f0; border-radius:2px;"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
+
+    <!-- PROFIL PERUSAHAAN -->
+    <div class="bes-card">
+      <div class="bes-card-header">
+        <div class="icon">🏢</div>
+        <div>
+          <div class="title">Data Perusahaan</div>
+          <div class="subtitle">Langkah 1 dari 2 · Isi profil bisnis Anda</div>
+        </div>
+      </div>
+      <div class="bes-card-body">
         <div class="mb-3">
-          <label class="form-label fw-semibold">Nama Perusahaan / Bisnis <span class="required-mark">*</span></label>
-          <input type="text" id="companyName" class="form-control form-control-lg"
-                 placeholder="PT / CV / Toko / Brand Anda" required>
+          <label class="form-label">Nama Perusahaan / Bisnis <span class="required-mark">*</span></label>
+          <input type="text" id="companyName" class="form-control" placeholder="PT / CV / Toko / Brand Anda" required>
         </div>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Email <span class="required-mark">*</span></label>
-            <input type="email" id="email" class="form-control"
-                   placeholder="email@perusahaan.com" required>
+            <label class="form-label">Email <span class="required-mark">*</span></label>
+            <input type="email" id="email" class="form-control" placeholder="email@perusahaan.com" required>
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Nomor WA Business <span class="required-mark">*</span></label>
-            <input type="tel" id="whatsapp" class="form-control"
-                   placeholder="08xxxxxxxxxx" required>
+            <label class="form-label">Nomor WA Business <span class="required-mark">*</span></label>
+            <input type="tel" id="whatsapp" class="form-control" placeholder="08xxxxxxxxxx" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Bidang / Jenis Usaha <span class="required-mark">*</span></label>
+            <input type="text" id="industry" class="form-control" placeholder="Contoh: Manufaktur, Retail, F&amp;B, Jasa, Properti..." required>
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Bidang / Jenis Usaha <span class="required-mark">*</span></label>
-            <input type="text" id="industry" class="form-control"
-                   placeholder="Contoh: Manufaktur, Retail, F&B, Jasa..." required>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label fw-semibold">Lama Operasional <span class="required-mark">*</span></label>
+            <label class="form-label">Lama Operasional <span class="required-mark">*</span></label>
             <div class="input-group">
-              <input type="number" id="yearsOp" class="form-control" min="0"
-                     placeholder="0" required>
+              <input type="number" id="yearsOp" class="form-control" min="0" placeholder="0" required>
               <span class="input-group-text">Tahun</span>
             </div>
           </div>
-          <div class="col-md-3">
-            <label class="form-label fw-semibold">Jumlah Karyawan <span class="required-mark">*</span></label>
-            <input type="number" id="totalEmployees" class="form-control" min="1"
-                   placeholder="0" required>
+          <div class="col-md-6">
+            <label class="form-label">Jumlah Total Karyawan <span class="required-mark">*</span></label>
+            <input type="number" id="totalEmployees" class="form-control" min="1" placeholder="0" required>
           </div>
         </div>
       </div>
     </div>
-    <!-- ===== END PROFIL ===== -->
 
-    <div id="loading" class="text-center my-5">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2 text-secondary">Memuat framework evaluasi bisnis...</p>
+    <!-- LOADING -->
+    <div id="loading">
+      <div class="loading-spinner"></div>
+      <p style="color:#64748b; font-weight:600;">Memuat framework evaluasi bisnis...</p>
+      <p style="color:#94a3b8; font-size:0.85rem;">Sedang mengambil daftar pertanyaan dari database</p>
     </div>
 
+    <!-- AUDIT QUESTIONS -->
     <form id="auditForm" class="d-none">
+      <div class="bes-card" style="background: linear-gradient(135deg,#f0fdf4,#dcfce7); border: 1.5px solid #bbf7d0; border-radius:14px; padding:18px 22px; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.4rem;">✅</span>
+          <div>
+            <div style="font-weight:700; color:#065f46; font-size:0.95rem;">Data Profil Tersimpan</div>
+            <div style="font-size:0.82rem; color:#059669;">Langkah 2 dari 2 · Jawab semua pertanyaan di bawah ini</div>
+          </div>
+        </div>
+      </div>
       <div id="dynamicQuestions"></div>
-      <button type="submit" id="btnSubmitText"
-              class="btn btn-primary btn-submit w-100 mt-4 shadow">
-        Kirim &amp; Analisis Skor Efisiensi Sekarang
+      <button type="submit" id="btnSubmitText" class="btn-bes-submit">
+        <span class="btn-icon">🚀</span> Kirim &amp; Analisis Skor Efisiensi Sekarang
       </button>
     </form>
   </div>
 
-  <!-- ===== RESULT ===== -->
+  <!-- ═══════════ RESULT ═══════════ -->
   <div id="resultContainer" class="d-none">
-    <div class="card p-5 text-center mb-4 bg-white shadow-sm border border-primary border-2">
-      <h4 class="text-secondary fw-semibold">OVERALL BES SCORE ANDA</h4>
-      <h1 class="display-1 fw-bold text-primary my-3" id="grandScoreTxt">0%</h1>
-      <p class="text-muted mb-0 fs-5">Hasil diagnosis kematangan sistem operasional perusahaan Anda.</p>
+    <div class="result-hero" id="resultHero">
+      <div class="result-hero-content">
+        <div class="result-label">Overall Business Efficiency Score</div>
+        <div class="result-score" id="grandScoreTxt">0%</div>
+        <div class="result-status-badge" id="resultStatusBadge">—</div>
+        <div class="result-desc" id="resultDesc"></div>
+      </div>
     </div>
-    <h4 class="fw-bold mb-3 text-dark">Rincian Analisis per Pilar Bisnis</h4>
+
+    <div style="font-weight:700; font-size:1.05rem; margin-bottom:16px; color:#1e293b;">📊 Rincian per Pilar Bisnis</div>
     <div id="resultBreakdown"></div>
-    <button onclick="window.location.reload();"
-            class="btn btn-outline-secondary w-100 mt-4 py-3 fw-semibold">
-      Ulangi Audit Baru
-    </button>
+
+    <button class="btn-reset" onclick="resetAudit();">↩ Mulai Audit Baru</button>
   </div>
+
+  <div class="bes-footer">Powered by <strong>FARAYYA</strong> · Business Efficiency Score v2.0</div>
 </div>
 
 <script>
   var localQuestionIds = [];
+  var questionCounter  = 0;
 
   document.addEventListener("DOMContentLoaded", function() {
     google.script.run
       .withSuccessHandler(function(response) {
         if (response && response.error) {
-          alert("Gagal Memuat: " + response.message);
+          document.getElementById("loading").innerHTML =
+            '<div style="color:#ef4444; font-weight:600;">⚠️ Gagal memuat: ' + response.message + '</div>';
           return;
         }
         renderQuestions(response);
+      })
+      .withFailureHandler(function(err) {
+        document.getElementById("loading").innerHTML =
+          '<div style="color:#ef4444; font-weight:600;">⚠️ Koneksi gagal: ' + err.message + '</div>';
       })
       .getQuestions();
   });
@@ -129,49 +426,64 @@
   function renderQuestions(questions) {
     document.getElementById("loading").classList.add("d-none");
     document.getElementById("auditForm").classList.remove("d-none");
+    document.getElementById("dot1").classList.remove("active");
+    document.getElementById("dot1").classList.add("done");
+    document.getElementById("dot2").classList.add("active");
 
-    var container = document.getElementById("dynamicQuestions");
+    var container        = document.getElementById("dynamicQuestions");
     var currentDimension = "";
     var currentCardBody  = null;
+    var dimIndex         = 0;
+    var dimIcons         = ["📋","📊","⚙️","💰","👥","📦","🔄","📈","🛡️","🎯"];
 
     questions.forEach(function(q) {
       localQuestionIds.push(q.id);
+      questionCounter++;
 
       if (q.dimension !== currentDimension) {
         currentDimension = q.dimension;
+        var icon = dimIcons[dimIndex % dimIcons.length];
+        dimIndex++;
 
         var card = document.createElement("div");
-        card.className = "card mb-4 overflow-hidden bg-white shadow-sm";
+        card.className = "bes-card";
 
         var header = document.createElement("div");
-        header.className = "dimension-header fw-bold text-uppercase";
-        header.innerText = currentDimension;
+        header.className = "bes-card-header";
+        header.innerHTML =
+          '<div class="icon">' + icon + '</div>' +
+          '<div><div class="title">' + q.dimension + '</div></div>';
         card.appendChild(header);
 
         currentCardBody = document.createElement("div");
-        currentCardBody.className = "card-body px-4";
+        currentCardBody.className = "bes-card-body";
         card.appendChild(currentCardBody);
-
         container.appendChild(card);
       }
+
+      var localNum = currentCardBody.querySelectorAll(".question-box").length + 1;
+      var uid = "q_" + q.id + "_" + Date.now() + "_" + localNum;
 
       var qBox = document.createElement("div");
       qBox.className = "question-box";
       qBox.innerHTML =
-        '<p class="fw-semibold mb-3 text-dark fs-5">' + q.text + '</p>' +
-        '<div class="radio-group d-flex flex-wrap gap-3">' +
-          '<label class="form-check-label border p-2 px-3 rounded bg-light">' +
-            '<input type="radio" class="form-check-input me-2" name="q_' + q.id + '" value="Yes" required>' +
-            '<span>Ya (100%)</span>' +
-          '</label>' +
-          '<label class="form-check-label border p-2 px-3 rounded bg-light">' +
-            '<input type="radio" class="form-check-input me-2" name="q_' + q.id + '" value="Partial">' +
-            '<span>Sebagian (50%)</span>' +
-          '</label>' +
-          '<label class="form-check-label border p-2 px-3 rounded bg-light">' +
-            '<input type="radio" class="form-check-input me-2" name="q_' + q.id + '" value="No">' +
-            '<span>Tidak (0%)</span>' +
-          '</label>' +
+        '<div style="display:flex; align-items:flex-start; gap:10px;">' +
+          '<span class="question-num">' + localNum + '</span>' +
+          '<span class="question-text">' + q.text + '</span>' +
+        '</div>' +
+        '<div class="answer-options">' +
+          '<div class="answer-option yes">' +
+            '<input type="radio" id="' + uid + '_yes" name="q_' + q.id + '" value="Yes">' +
+            '<label for="' + uid + '_yes"><span class="answer-dot"></span> Ya — Sudah Ada</label>' +
+          '</div>' +
+          '<div class="answer-option partial">' +
+            '<input type="radio" id="' + uid + '_par" name="q_' + q.id + '" value="Partial">' +
+            '<label for="' + uid + '_par"><span class="answer-dot"></span> Sebagian</label>' +
+          '</div>' +
+          '<div class="answer-option no">' +
+            '<input type="radio" id="' + uid + '_no" name="q_' + q.id + '" value="No">' +
+            '<label for="' + uid + '_no"><span class="answer-dot"></span> Tidak / Belum Ada</label>' +
+          '</div>' +
         '</div>';
       currentCardBody.appendChild(qBox);
     });
@@ -180,7 +492,6 @@
   document.getElementById("auditForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    // Validasi profil
     var companyName    = document.getElementById("companyName").value.trim();
     var email          = document.getElementById("email").value.trim();
     var whatsapp       = document.getElementById("whatsapp").value.trim();
@@ -188,18 +499,21 @@
     var yearsOp        = document.getElementById("yearsOp").value.trim();
     var totalEmployees = document.getElementById("totalEmployees").value.trim();
 
-    if (!companyName)    { alert("Mohon isi Nama Perusahaan!");           document.getElementById("companyName").focus();    return; }
-    if (!email)          { alert("Mohon isi Email!");                      document.getElementById("email").focus();          return; }
-    if (!whatsapp)       { alert("Mohon isi Nomor WA Business!");          document.getElementById("whatsapp").focus();       return; }
-    if (!industry)       { alert("Mohon isi Bidang / Jenis Usaha!");       document.getElementById("industry").focus();       return; }
-    if (yearsOp === "")  { alert("Mohon isi Lama Operasional (Tahun)!");   document.getElementById("yearsOp").focus();        return; }
-    if (!totalEmployees) { alert("Mohon isi Jumlah Total Karyawan!");      document.getElementById("totalEmployees").focus(); return; }
+    if (!companyName)    { showFieldError("companyName",    "Nama Perusahaan wajib diisi!"); return; }
+    if (!email)          { showFieldError("email",          "Email wajib diisi!");            return; }
+    if (!whatsapp)       { showFieldError("whatsapp",       "Nomor WA wajib diisi!");         return; }
+    if (!industry)       { showFieldError("industry",       "Bidang usaha wajib diisi!");     return; }
+    if (yearsOp === "")  { showFieldError("yearsOp",        "Lama operasional wajib diisi!"); return; }
+    if (!totalEmployees) { showFieldError("totalEmployees", "Jumlah karyawan wajib diisi!");  return; }
 
     var submitBtn = document.getElementById("btnSubmitText");
     submitBtn.disabled = true;
-    submitBtn.innerText = "Sedang Menghitung & Menganalisis Kebocoran Bisnis...";
+    submitBtn.innerHTML = '<span style="display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:10px;"></span> Menganalisis kebocoran bisnis Anda...';
 
-    // Kumpulkan jawaban
+    document.getElementById("dot2").classList.remove("active");
+    document.getElementById("dot2").classList.add("done");
+    document.getElementById("dot3").classList.add("active");
+
     var answersArray = [];
     localQuestionIds.forEach(function(id) {
       var radios = document.getElementsByName("q_" + id);
@@ -210,14 +524,7 @@
       answersArray.push({ id: id, value: val });
     });
 
-    var profileJson  = JSON.stringify({
-      companyName:    companyName,
-      email:          email,
-      whatsapp:       whatsapp,
-      industry:       industry,
-      yearsOp:        yearsOp,
-      totalEmployees: totalEmployees
-    });
+    var profileJson = JSON.stringify({ companyName: companyName, email: email, whatsapp: whatsapp, industry: industry, yearsOp: yearsOp, totalEmployees: totalEmployees });
     var answersJson = JSON.stringify(answersArray);
 
     google.script.run
@@ -225,53 +532,185 @@
       .withFailureHandler(function(err) {
         alert("Koneksi gagal: " + err.message);
         submitBtn.disabled = false;
-        submitBtn.innerText = "Kirim & Analisis Skor Efisiensi Sekarang";
+        submitBtn.innerHTML = '<span class="btn-icon">🚀</span> Kirim &amp; Analisis Skor Efisiensi Sekarang';
+        document.getElementById("dot3").classList.remove("active");
+        document.getElementById("dot2").classList.remove("done");
+        document.getElementById("dot2").classList.add("active");
       })
       .submitAudit(profileJson, answersJson);
   });
+
+  function showFieldError(fieldId, msg) {
+    var el = document.getElementById(fieldId);
+    el.style.borderColor = "#ef4444";
+    el.focus();
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    var existing = el.parentNode.querySelector(".field-error");
+    if (!existing) {
+      var err = document.createElement("div");
+      err.className = "field-error";
+      err.style.cssText = "color:#ef4444;font-size:0.78rem;margin-top:4px;font-weight:600;";
+      err.textContent = "⚠ " + msg;
+      el.parentNode.appendChild(err);
+    }
+    setTimeout(function() {
+      el.style.borderColor = "";
+      var e2 = el.parentNode.querySelector(".field-error");
+      if (e2) e2.remove();
+    }, 3000);
+  }
 
   function showResults(results) {
     if (!results || results.error) {
       alert("Error Analisis Backend:\n" + (results ? results.message : "Data Kosong"));
       var submitBtn = document.getElementById("btnSubmitText");
       submitBtn.disabled = false;
-      submitBtn.innerText = "Kirim & Analisis Skor Efisiensi Sekarang";
+      submitBtn.innerHTML = '<span class="btn-icon">🚀</span> Kirim &amp; Analisis Skor Efisiensi Sekarang';
+      document.getElementById("dot3").classList.remove("active");
+      document.getElementById("dot2").classList.remove("done");
+      document.getElementById("dot2").classList.add("active");
       return;
     }
 
     document.getElementById("formContainer").classList.add("d-none");
+    document.getElementById("dot3").classList.remove("active");
+    document.getElementById("dot3").classList.add("done");
     document.getElementById("resultContainer").classList.remove("d-none");
-    document.getElementById("grandScoreTxt").innerText = results.grandScore;
+
+    var scoreNum = parseFloat(results.grandScore);
+    var heroEl   = document.getElementById("resultHero");
+    var badgeEl  = document.getElementById("resultStatusBadge");
+    var descEl   = document.getElementById("resultDesc");
+
+    if (scoreNum > 80) {
+      heroEl.classList.add("excellent");
+      badgeEl.textContent = "🏆 Excellent — Bisnis Anda Sehat!";
+      descEl.textContent  = "Sistem operasional Anda sudah kokoh. Siap untuk scaling dan integrasi ERP otomatis.";
+    } else if (scoreNum >= 50) {
+      heroEl.classList.add("moderate");
+      badgeEl.textContent = "⚠️ Needs Improvement — Ada Kebocoran Halus";
+      descEl.textContent  = "Beberapa area perlu perhatian. Standarisasi SOP sebelum investasi teknologi baru.";
+    } else {
+      heroEl.classList.add("critical");
+      badgeEl.textContent = "🚨 Critical — Risiko Tinggi Terdeteksi!";
+      descEl.textContent  = "Terdeteksi kebocoran sistemik. Prioritaskan perbaikan kontrol manual sekarang.";
+    }
+
+    // Animated counter
+    animateCounter(document.getElementById("grandScoreTxt"), 0, scoreNum, 1400);
 
     var breakdownDiv = document.getElementById("resultBreakdown");
     breakdownDiv.innerHTML = "";
 
-    results.breakdown.forEach(function(res) {
-      var badgeColor  = "bg-danger text-white";
-      var borderClass = "border-danger";
+    results.breakdown.forEach(function(res, idx) {
+      var scoreVal = parseFloat(res.score);
+      var cls = scoreVal > 80 ? "excellent" : scoreVal >= 50 ? "moderate" : "critical";
+      var pillCls = "pill-" + cls;
+      var barCls  = cls;
 
-      if (res.status.indexOf("Excellent") > -1 || res.status.indexOf("Sehat") > -1) {
-        badgeColor  = "bg-success text-white";
-        borderClass = "border-success";
-      } else if (res.status.indexOf("Needs") > -1 || res.status.indexOf("Bocor Halus") > -1) {
-        badgeColor  = "bg-warning text-dark";
-        borderClass = "border-warning";
-      }
-
-      var resCard = document.createElement("div");
-      resCard.className = "card p-4 mb-3 bg-white shadow-sm border-start border-4 " + borderClass;
-      resCard.innerHTML =
-        '<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 border-bottom pb-2 mb-2">' +
-          '<h5 class="fw-bold text-dark mb-0 fs-5">' + res.dimension + '</h5>' +
-          '<span class="badge ' + badgeColor + ' px-3 py-2 fs-6 rounded-pill">' + res.status + ' (' + res.score + ')</span>' +
+      var dimCard = document.createElement("div");
+      dimCard.className = "dim-card " + cls;
+      dimCard.style.opacity = "0";
+      dimCard.style.transform = "translateY(16px)";
+      dimCard.innerHTML =
+        '<div class="dim-header">' +
+          '<div class="dim-name">' + res.dimension + '</div>' +
+          '<span class="dim-pill ' + pillCls + '">' + res.status + '</span>' +
         '</div>' +
-        '<p class="text-muted mb-0 fs-6"><strong>Rekomendasi Strategis:</strong> ' + res.rec + '</p>';
-      breakdownDiv.appendChild(resCard);
+        '<div class="progress-wrap">' +
+          '<div class="progress-label"><span>Skor Efisiensi</span><span>' + res.score + '</span></div>' +
+          '<div class="progress"><div class="progress-bar ' + barCls + '" style="width:0%" data-target="' + scoreVal + '"></div></div>' +
+        '</div>' +
+        '<div class="dim-rec"><strong>💡 Rekomendasi:</strong> ' + res.rec + '</div>';
+      breakdownDiv.appendChild(dimCard);
+
+      setTimeout(function() {
+        dimCard.style.transition = "opacity .4s ease, transform .4s ease";
+        dimCard.style.opacity = "1";
+        dimCard.style.transform = "translateY(0)";
+        var bar = dimCard.querySelector(".progress-bar");
+        setTimeout(function() { bar.style.width = bar.dataset.target + "%"; }, 100);
+      }, 120 * idx);
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-</script>
 
+  function resetAudit() {
+    // Reset state
+    localQuestionIds = [];
+    questionCounter  = 0;
+
+    // Sembunyikan result, tampilkan form
+    document.getElementById("resultContainer").classList.add("d-none");
+    document.getElementById("formContainer").classList.remove("d-none");
+
+    // Bersihkan result
+    document.getElementById("resultBreakdown").innerHTML = "";
+    document.getElementById("grandScoreTxt").textContent = "0%";
+    document.getElementById("resultStatusBadge").textContent = "—";
+    document.getElementById("resultDesc").textContent = "";
+    var heroEl = document.getElementById("resultHero");
+    heroEl.classList.remove("excellent", "moderate", "critical");
+
+    // Bersihkan pertanyaan lama
+    document.getElementById("dynamicQuestions").innerHTML = "";
+    document.getElementById("auditForm").classList.add("d-none");
+
+    // Reset form profil
+    document.getElementById("companyName").value    = "";
+    document.getElementById("email").value          = "";
+    document.getElementById("whatsapp").value       = "";
+    document.getElementById("industry").value       = "";
+    document.getElementById("yearsOp").value        = "";
+    document.getElementById("totalEmployees").value = "";
+
+    // Reset step indicator
+    document.getElementById("dot1").className = "step-dot active";
+    document.getElementById("dot2").className = "step-dot";
+    document.getElementById("dot3").className = "step-dot";
+
+    // Reset submit button
+    var submitBtn = document.getElementById("btnSubmitText");
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<span class="btn-icon">🚀</span> Kirim &amp; Analisis Skor Efisiensi Sekarang';
+
+    // Tampilkan loading dan muat ulang pertanyaan
+    document.getElementById("loading").classList.remove("d-none");
+    document.getElementById("loading").innerHTML =
+      '<div class="loading-spinner"></div>' +
+      '<p style="color:#64748b; font-weight:600;">Memuat framework evaluasi bisnis...</p>' +
+      '<p style="color:#94a3b8; font-size:0.85rem;">Sedang mengambil daftar pertanyaan dari database</p>';
+
+    google.script.run
+      .withSuccessHandler(function(response) {
+        if (response && response.error) {
+          document.getElementById("loading").innerHTML =
+            '<div style="color:#ef4444; font-weight:600;">⚠️ Gagal memuat: ' + response.message + '</div>';
+          return;
+        }
+        renderQuestions(response);
+      })
+      .withFailureHandler(function(err) {
+        document.getElementById("loading").innerHTML =
+          '<div style="color:#ef4444; font-weight:600;">⚠️ Koneksi gagal: ' + err.message + '</div>';
+      })
+      .getQuestions();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function animateCounter(el, from, to, duration) {
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var ease = 1 - Math.pow(1 - progress, 3);
+      el.textContent = (from + (to - from) * ease).toFixed(1) + "%";
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+</script>
 </body>
 </html>
