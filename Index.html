@@ -15,21 +15,71 @@
     .question-box { border-bottom: 1px solid #f1f5f9; padding: 20px 0; }
     .question-box:last-child { border-bottom: none; }
     .radio-group label { cursor: pointer; padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 6px; display: inline-block; }
+    .profile-section-title {
+      background-color: #0f172a;
+      color: white;
+      border-radius: 12px 12px 0 0;
+      padding: 18px 24px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .required-mark { color: #ef4444; }
   </style>
 </head>
 <body>
 
 <div class="container my-5" style="max-width: 800px;">
   <div class="text-center mb-5">
-    <h2 class="fw-bold text-slate-900">Business Efficiency Score (BES)</h2>
+    <h2 class="fw-bold" style="color:#0f172a;">Business Efficiency Score (BES)</h2>
     <p class="text-secondary fs-5">Evaluasi Kematangan Operasional & Analisis Kebocoran Bisnis</p>
   </div>
 
   <div id="formContainer">
-    <div class="card p-4 mb-4">
-      <label class="form-label fw-bold text-dark fs-5">Nama Perusahaan / Bisnis Anda</label>
-      <input type="text" id="companyName" class="form-control form-control-lg" placeholder="Masukkan nama PT / CV / Toko Anda" required>
+
+    <!-- ===== PROFIL PERUSAHAAN ===== -->
+    <div class="card mb-4 overflow-hidden">
+      <div class="profile-section-title">Data Perusahaan / Klien</div>
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Nama Perusahaan / Bisnis <span class="required-mark">*</span></label>
+          <input type="text" id="companyName" class="form-control form-control-lg"
+                 placeholder="PT / CV / Toko / Brand Anda" required>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Email <span class="required-mark">*</span></label>
+            <input type="email" id="email" class="form-control"
+                   placeholder="email@perusahaan.com" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Nomor WA Business <span class="required-mark">*</span></label>
+            <input type="tel" id="whatsapp" class="form-control"
+                   placeholder="08xxxxxxxxxx" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Bidang / Jenis Usaha <span class="required-mark">*</span></label>
+            <input type="text" id="industry" class="form-control"
+                   placeholder="Contoh: Manufaktur, Retail, F&B, Jasa..." required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Lama Operasional <span class="required-mark">*</span></label>
+            <div class="input-group">
+              <input type="number" id="yearsOp" class="form-control" min="0"
+                     placeholder="0" required>
+              <span class="input-group-text">Tahun</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Jumlah Karyawan <span class="required-mark">*</span></label>
+            <input type="number" id="totalEmployees" class="form-control" min="1"
+                   placeholder="0" required>
+          </div>
+        </div>
+      </div>
     </div>
+    <!-- ===== END PROFIL ===== -->
 
     <div id="loading" class="text-center my-5">
       <div class="spinner-border text-primary" role="status"></div>
@@ -38,10 +88,14 @@
 
     <form id="auditForm" class="d-none">
       <div id="dynamicQuestions"></div>
-      <button type="submit" id="btnSubmitText" class="btn btn-primary btn-submit w-100 mt-4 shadow">Kirim & Analisis Skor Efisiensi Sekarang</button>
+      <button type="submit" id="btnSubmitText"
+              class="btn btn-primary btn-submit w-100 mt-4 shadow">
+        Kirim &amp; Analisis Skor Efisiensi Sekarang
+      </button>
     </form>
   </div>
 
+  <!-- ===== RESULT ===== -->
   <div id="resultContainer" class="d-none">
     <div class="card p-5 text-center mb-4 bg-white shadow-sm border border-primary border-2">
       <h4 class="text-secondary fw-semibold">OVERALL BES SCORE ANDA</h4>
@@ -50,7 +104,10 @@
     </div>
     <h4 class="fw-bold mb-3 text-dark">Rincian Analisis per Pilar Bisnis</h4>
     <div id="resultBreakdown"></div>
-    <button onclick="window.location.reload();" class="btn btn-outline-secondary w-100 mt-4 py-3 fw-semibold">Ulangi Audit Baru</button>
+    <button onclick="window.location.reload();"
+            class="btn btn-outline-secondary w-100 mt-4 py-3 fw-semibold">
+      Ulangi Audit Baru
+    </button>
   </div>
 </div>
 
@@ -75,86 +132,102 @@
 
     var container = document.getElementById("dynamicQuestions");
     var currentDimension = "";
-    var currentCardBody = null;
+    var currentCardBody  = null;
 
     questions.forEach(function(q) {
-      localQuestionIds.push(q.id); // Simpan semua ID pertanyaan valid
+      localQuestionIds.push(q.id);
 
       if (q.dimension !== currentDimension) {
         currentDimension = q.dimension;
-        
+
         var card = document.createElement("div");
         card.className = "card mb-4 overflow-hidden bg-white shadow-sm";
-        
+
         var header = document.createElement("div");
         header.className = "dimension-header fw-bold text-uppercase";
         header.innerText = currentDimension;
         card.appendChild(header);
-        
+
         currentCardBody = document.createElement("div");
         currentCardBody.className = "card-body px-4";
         card.appendChild(currentCardBody);
-        
+
         container.appendChild(card);
       }
 
       var qBox = document.createElement("div");
       qBox.className = "question-box";
-      qBox.innerHTML = `
-        <p class="fw-semibold mb-3 text-dark fs-5">${q.text}</p>
-        <div class="radio-group d-flex flex-wrap gap-3">
-          <label class="form-check-label border p-2 px-3 rounded bg-light">
-            <input type="radio" class="form-check-input me-2" name="q_${q.id}" value="Yes" required><span>Ya (100%)</span>
-          </label>
-          <label class="form-check-label border p-2 px-3 rounded bg-light">
-            <input type="radio" class="form-check-input me-2" name="q_${q.id}" value="Partial"><span>Sebagian (50%)</span>
-          </label>
-          <label class="form-check-label border p-2 px-3 rounded bg-light">
-            <input type="radio" class="form-check-input me-2" name="q_${q.id}" value="No"><span>Tidak (0%)</span>
-          </label>
-        </div>
-      `;
+      qBox.innerHTML =
+        '<p class="fw-semibold mb-3 text-dark fs-5">' + q.text + '</p>' +
+        '<div class="radio-group d-flex flex-wrap gap-3">' +
+          '<label class="form-check-label border p-2 px-3 rounded bg-light">' +
+            '<input type="radio" class="form-check-input me-2" name="q_' + q.id + '" value="Yes" required>' +
+            '<span>Ya (100%)</span>' +
+          '</label>' +
+          '<label class="form-check-label border p-2 px-3 rounded bg-light">' +
+            '<input type="radio" class="form-check-input me-2" name="q_' + q.id + '" value="Partial">' +
+            '<span>Sebagian (50%)</span>' +
+          '</label>' +
+          '<label class="form-check-label border p-2 px-3 rounded bg-light">' +
+            '<input type="radio" class="form-check-input me-2" name="q_' + q.id + '" value="No">' +
+            '<span>Tidak (0%)</span>' +
+          '</label>' +
+        '</div>';
       currentCardBody.appendChild(qBox);
     });
   }
 
   document.getElementById("auditForm").addEventListener("submit", function(e) {
     e.preventDefault();
-    
-    var companyName = document.getElementById("companyName").value;
-    if(!companyName.trim()) { alert("Mohon isi nama perusahaan!"); return; }
+
+    // Validasi profil
+    var companyName    = document.getElementById("companyName").value.trim();
+    var email          = document.getElementById("email").value.trim();
+    var whatsapp       = document.getElementById("whatsapp").value.trim();
+    var industry       = document.getElementById("industry").value.trim();
+    var yearsOp        = document.getElementById("yearsOp").value.trim();
+    var totalEmployees = document.getElementById("totalEmployees").value.trim();
+
+    if (!companyName)    { alert("Mohon isi Nama Perusahaan!");           document.getElementById("companyName").focus();    return; }
+    if (!email)          { alert("Mohon isi Email!");                      document.getElementById("email").focus();          return; }
+    if (!whatsapp)       { alert("Mohon isi Nomor WA Business!");          document.getElementById("whatsapp").focus();       return; }
+    if (!industry)       { alert("Mohon isi Bidang / Jenis Usaha!");       document.getElementById("industry").focus();       return; }
+    if (yearsOp === "")  { alert("Mohon isi Lama Operasional (Tahun)!");   document.getElementById("yearsOp").focus();        return; }
+    if (!totalEmployees) { alert("Mohon isi Jumlah Total Karyawan!");      document.getElementById("totalEmployees").focus(); return; }
 
     var submitBtn = document.getElementById("btnSubmitText");
     submitBtn.disabled = true;
     submitBtn.innerText = "Sedang Menghitung & Menganalisis Kebocoran Bisnis...";
 
+    // Kumpulkan jawaban
     var answersArray = [];
-    
-    // Ekstraksi paksa menggunakan array ID lokal yang terjamin
     localQuestionIds.forEach(function(id) {
-      var nameGroup = "q_" + id;
-      var radios = document.getElementsByName(nameGroup);
-      var val = "No"; // Default fallback
-      for(var i=0; i<radios.length; i++) {
-        if(radios[i].checked) {
-          val = radios[i].value;
-          break;
-        }
+      var radios = document.getElementsByName("q_" + id);
+      var val = "No";
+      for (var i = 0; i < radios.length; i++) {
+        if (radios[i].checked) { val = radios[i].value; break; }
       }
       answersArray.push({ id: id, value: val });
     });
 
-    // UBAH MENJADI STRING JSON MURNI AGAR TIDAK HILANG SAAT DIKIRIM KE GOOGLE SERVER
-    var secureJsonString = JSON.stringify(answersArray);
+    var profileJson  = JSON.stringify({
+      companyName:    companyName,
+      email:          email,
+      whatsapp:       whatsapp,
+      industry:       industry,
+      yearsOp:        yearsOp,
+      totalEmployees: totalEmployees
+    });
+    var answersJson = JSON.stringify(answersArray);
 
     google.script.run
       .withSuccessHandler(showResults)
       .withFailureHandler(function(err) {
-         alert("Koneksi gagal: " + err.message);
-         submitBtn.disabled = false;
-         submitBtn.innerText = "Kirim & Analisis Skor Efisiensi Sekarang";
+        alert("Koneksi gagal: " + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Kirim & Analisis Skor Efisiensi Sekarang";
       })
-      .submitAudit(companyName, secureJsonString);
+      .submitAudit(profileJson, answersJson);
   });
 
   function showResults(results) {
@@ -165,38 +238,38 @@
       submitBtn.innerText = "Kirim & Analisis Skor Efisiensi Sekarang";
       return;
     }
-    
+
     document.getElementById("formContainer").classList.add("d-none");
     document.getElementById("resultContainer").classList.remove("d-none");
-    
     document.getElementById("grandScoreTxt").innerText = results.grandScore;
-    
+
     var breakdownDiv = document.getElementById("resultBreakdown");
     breakdownDiv.innerHTML = "";
-    
+
     results.breakdown.forEach(function(res) {
-      var badgeColor = "bg-danger text-white";
-      if(res.status.indexOf("Excellent") > -1 || res.status.indexOf("Sehat") > -1) {
-        badgeColor = "bg-success text-white";
-      } else if(res.status.indexOf("Needs") > -1 || res.status.indexOf("Bocor Halus") > -1) {
-        badgeColor = "bg-warning text-dark";
+      var badgeColor  = "bg-danger text-white";
+      var borderClass = "border-danger";
+
+      if (res.status.indexOf("Excellent") > -1 || res.status.indexOf("Sehat") > -1) {
+        badgeColor  = "bg-success text-white";
+        borderClass = "border-success";
+      } else if (res.status.indexOf("Needs") > -1 || res.status.indexOf("Bocor Halus") > -1) {
+        badgeColor  = "bg-warning text-dark";
+        borderClass = "border-warning";
       }
 
       var resCard = document.createElement("div");
-      resCard.className = "card p-4 mb-3 bg-white shadow-sm border-start border-4 " + 
-                         (badgeColor.includes("bg-success") ? "border-success" : badgeColor.includes("bg-warning") ? "border-warning" : "border-danger");
-      
-      resCard.innerHTML = `
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 border-bottom pb-2 mb-2">
-          <h5 class="fw-bold text-dark mb-0 fs-5">${res.dimension}</h5>
-          <span class="badge ${badgeColor} px-3 py-2 fs-6 rounded-pill">${res.status} (${res.score})</span>
-        </div>
-        <p class="text-muted mb-0 fs-6"><strong>Rekomendasi Strategis:</strong> ${res.rec}</p>
-      `;
+      resCard.className = "card p-4 mb-3 bg-white shadow-sm border-start border-4 " + borderClass;
+      resCard.innerHTML =
+        '<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 border-bottom pb-2 mb-2">' +
+          '<h5 class="fw-bold text-dark mb-0 fs-5">' + res.dimension + '</h5>' +
+          '<span class="badge ' + badgeColor + ' px-3 py-2 fs-6 rounded-pill">' + res.status + ' (' + res.score + ')</span>' +
+        '</div>' +
+        '<p class="text-muted mb-0 fs-6"><strong>Rekomendasi Strategis:</strong> ' + res.rec + '</p>';
       breakdownDiv.appendChild(resCard);
     });
-    
-    window.scrollTo({top: 0, behavior: 'smooth'});
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
 
