@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Efficiency Score (BES)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f1f5f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+    .dimension-header { background-color: #0f172a; color: white; border-radius: 12px 12px 0 0; padding: 18px 24px; font-size: 1.1rem; }
+    .btn-submit { background-color: #0284c7; border: none; padding: 14px; font-weight: 600; font-size: 1.1rem; }
+    .btn-submit:hover { background-color: #0369a1; }
+    .question-box { border-bottom: 1px solid #f1f5f9; padding: 20px 0; }
+    .question-box:last-child { border-bottom: none; }
+    .radio-group label { cursor: pointer; padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 6px; display: inline-block; }
+  </style>
+</head>
+<body>
+
+<div class="container my-5" style="max-width: 800px;">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold text-slate-900">Business Efficiency Score (BES)</h2>
+    <p class="text-secondary fs-5">Evaluasi Kematangan Operasional & Analisis Kebocoran Bisnis</p>
+  </div>
+
+  <div id="formContainer">
+    <div class="card p-4 mb-4">
+      <label class="form-label fw-bold text-dark fs-5">Nama Perusahaan / Bisnis Anda</label>
+      <input type="text" id="companyName" class="form-control form-control-lg" placeholder="Masukkan nama PT / CV / Toko Anda" required>
+    </div>
+
+    <div id="loading" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-secondary">Memuat framework evaluasi bisnis...</p>
+    </div>
+
+    <form id="auditForm" class="d-none">
+      <div id="dynamicQuestions"></div>
+      <button type="submit" id="btnSubmitText" class="btn btn-primary btn-submit w-100 mt-4 shadow">Kirim & Analisis Skor Efisiensi Sekarang</button>
+    </form>
+  </div>
+
+  <div id="resultContainer" class="d-none">
+    <div class="card p-5 text-center mb-4 bg-white shadow-sm border border-primary border-2">
+      <h4 class="text-secondary fw-semibold">OVERALL BES SCORE ANDA</h4>
+      <h1 class="display-1 fw-bold text-primary my-3" id="grandScoreTxt">0%</h1>
+      <p class="text-muted mb-0 fs-5">Hasil diagnosis kematangan sistem operasional perusahaan Anda.</p>
+    </div>
+    <h4 class="fw-bold mb-3 text-dark">Rincian Analisis per Pilar Bisnis</h4>
+    <div id="resultBreakdown"></div>
+    <button onclick="window.location.reload();" class="btn btn-outline-secondary w-100 mt-4 py-3 fw-semibold">Ulangi Audit Baru</button>
+  </div>
+</div>
+
+<script>
+  var localQuestionIds = [];
+
+  document.addEventListener("DOMContentLoaded", function() {
+    google.script.run
+      .withSuccessHandler(function(response) {
+        if (response && response.error) {
+          alert("Gagal Memuat: " + response.message);
+          return;
+        }
+        renderQuestions(response);
+      })
+      .getQuestions();
+  });
+
+  function renderQuestions(questions) {
+    document.getElementById("loading").classList.add("d-none");
+    document.getElementById("auditForm").classList.remove("d-none");
+
+    var container = document.getElementById("dynamicQuestions");
+    var currentDimension = "";
+    var currentCardBody = null;
+
+    questions.forEach(function(q) {
+      localQuestionIds.push(q.id); // Simpan semua ID pertanyaan valid
+
+      if (q.dimension !== currentDimension) {
+        currentDimension = q.dimension;
+        
+        var card = document.createElement("div");
+        card.className = "card mb-4 overflow-hidden bg-white shadow-sm";
+        
+        var header = document.createElement("div");
+        header.className = "dimension-header fw-bold text-uppercase";
+        header.innerText = currentDimension;
+        card.appendChild(header);
+        
+        currentCardBody = document.createElement("div");
+        currentCardBody.className = "card-body px-4";
+        card.appendChild(currentCardBody);
+        
+        container.appendChild(card);
+      }
+
+      var qBox = document.createElement("div");
+      qBox.className = "question-box";
+      qBox.innerHTML = `
+        <p class="fw-semibold mb-3 text-dark fs-5">${q.text}</p>
+        <div class="radio-group d-flex flex-wrap gap-3">
+          <label class="form-check-label border p-2 px-3 rounded bg-light">
+            <input type="radio" class="form-check-input me-2" name="q_${q.id}" value="Yes" required><span>Ya (100%)</span>
+          </label>
+          <label class="form-check-label border p-2 px-3 rounded bg-light">
+            <input type="radio" class="form-check-input me-2" name="q_${q.id}" value="Partial"><span>Sebagian (50%)</span>
+          </label>
+          <label class="form-check-label border p-2 px-3 rounded bg-light">
+            <input type="radio" class="form-check-input me-2" name="q_${q.id}" value="No"><span>Tidak (0%)</span>
+          </label>
+        </div>
+      `;
+      currentCardBody.appendChild(qBox);
+    });
+  }
+
+  document.getElementById("auditForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    
+    var companyName = document.getElementById("companyName").value;
+    if(!companyName.trim()) { alert("Mohon isi nama perusahaan!"); return; }
+
+    var submitBtn = document.getElementById("btnSubmitText");
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Sedang Menghitung & Menganalisis Kebocoran Bisnis...";
+
+    var answersArray = [];
+    
+    // Ekstraksi paksa menggunakan array ID lokal yang terjamin
+    localQuestionIds.forEach(function(id) {
+      var nameGroup = "q_" + id;
+      var radios = document.getElementsByName(nameGroup);
+      var val = "No"; // Default fallback
+      for(var i=0; i<radios.length; i++) {
+        if(radios[i].checked) {
+          val = radios[i].value;
+          break;
+        }
+      }
+      answersArray.push({ id: id, value: val });
+    });
+
+    // UBAH MENJADI STRING JSON MURNI AGAR TIDAK HILANG SAAT DIKIRIM KE GOOGLE SERVER
+    var secureJsonString = JSON.stringify(answersArray);
+
+    google.script.run
+      .withSuccessHandler(showResults)
+      .withFailureHandler(function(err) {
+         alert("Koneksi gagal: " + err.message);
+         submitBtn.disabled = false;
+         submitBtn.innerText = "Kirim & Analisis Skor Efisiensi Sekarang";
+      })
+      .submitAudit(companyName, secureJsonString);
+  });
+
+  function showResults(results) {
+    if (!results || results.error) {
+      alert("Error Analisis Backend:\n" + (results ? results.message : "Data Kosong"));
+      var submitBtn = document.getElementById("btnSubmitText");
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Kirim & Analisis Skor Efisiensi Sekarang";
+      return;
+    }
+    
+    document.getElementById("formContainer").classList.add("d-none");
+    document.getElementById("resultContainer").classList.remove("d-none");
+    
+    document.getElementById("grandScoreTxt").innerText = results.grandScore;
+    
+    var breakdownDiv = document.getElementById("resultBreakdown");
+    breakdownDiv.innerHTML = "";
+    
+    results.breakdown.forEach(function(res) {
+      var badgeColor = "bg-danger text-white";
+      if(res.status.indexOf("Excellent") > -1 || res.status.indexOf("Sehat") > -1) {
+        badgeColor = "bg-success text-white";
+      } else if(res.status.indexOf("Needs") > -1 || res.status.indexOf("Bocor Halus") > -1) {
+        badgeColor = "bg-warning text-dark";
+      }
+
+      var resCard = document.createElement("div");
+      resCard.className = "card p-4 mb-3 bg-white shadow-sm border-start border-4 " + 
+                         (badgeColor.includes("bg-success") ? "border-success" : badgeColor.includes("bg-warning") ? "border-warning" : "border-danger");
+      
+      resCard.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 border-bottom pb-2 mb-2">
+          <h5 class="fw-bold text-dark mb-0 fs-5">${res.dimension}</h5>
+          <span class="badge ${badgeColor} px-3 py-2 fs-6 rounded-pill">${res.status} (${res.score})</span>
+        </div>
+        <p class="text-muted mb-0 fs-6"><strong>Rekomendasi Strategis:</strong> ${res.rec}</p>
+      `;
+      breakdownDiv.appendChild(resCard);
+    });
+    
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+</script>
+
+</body>
+</html>
