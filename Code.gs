@@ -58,11 +58,12 @@ function getOrCreateLeadsSheet(ss) {
       "Bidang / Jenis Usaha",
       "Lama Operasional (Tahun)",
       "Jumlah Total Karyawan",
+      "Estimasi Omzet / Bulan",
       "Overall BES Score",
       "Kategori Overall"
     ]);
     // Format header: bold + freeze baris pertama
-    sheet.getRange(1, 1, 1, 9).setFontWeight("bold").setBackground("#0f172a").setFontColor("#ffffff");
+    sheet.getRange(1, 1, 1, 10).setFontWeight("bold").setBackground("#0f172a").setFontColor("#ffffff");
     sheet.setFrozenRows(1);
     sheet.setColumnWidth(1, 160);
     sheet.setColumnWidth(2, 200);
@@ -71,8 +72,9 @@ function getOrCreateLeadsSheet(ss) {
     sheet.setColumnWidth(5, 180);
     sheet.setColumnWidth(6, 120);
     sheet.setColumnWidth(7, 120);
-    sheet.setColumnWidth(8, 120);
-    sheet.setColumnWidth(9, 160);
+    sheet.setColumnWidth(8, 180);
+    sheet.setColumnWidth(9, 120);
+    sheet.setColumnWidth(10, 160);
     console.log("Sheet '4_Leads_Record' berhasil dibuat.");
   }
   return sheet;
@@ -105,6 +107,7 @@ function submitAudit(profileJsonString, answersJsonString) {
     var industry       = profile.industry       || "";
     var yearsOp        = profile.yearsOp        || "";
     var totalEmployees = profile.totalEmployees || "";
+    var revenue        = profile.revenue        || "";
 
     console.log("Profil diterima:", JSON.stringify(profile));
 
@@ -203,6 +206,7 @@ function submitAudit(profileJsonString, answersJsonString) {
     dashboardSheet.appendRow(["Bidang Usaha:", industry]);
     dashboardSheet.appendRow(["Lama Operasional:", yearsOp + " Tahun"]);
     dashboardSheet.appendRow(["Jumlah Karyawan:", totalEmployees]);
+    dashboardSheet.appendRow(["Estimasi Omzet / Bulan:", revenue]);
     dashboardSheet.appendRow(["Tanggal Audit:", timestamp]);
     dashboardSheet.appendRow(["", ""]);
     dashboardSheet.appendRow(["Dimensi Bisnis", "Skor Efisiensi (%)", "Kategori Kesehatan", "Rekomendasi Strategis"]);
@@ -268,6 +272,7 @@ function submitAudit(profileJsonString, answersJsonString) {
       industry,
       yearsOp,
       totalEmployees,
+      revenue,
       grandTotalScore.toFixed(1) + "%",
       overallCategory
     ]);
