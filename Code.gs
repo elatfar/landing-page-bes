@@ -289,3 +289,92 @@ function submitAudit(profileJsonString, answersJsonString) {
     return { error: true, message: err.toString() };
   }
 }
+
+// -------------------------------------------------------
+// getAiInsight — kirim payload ke n8n webhook, terima hasil AI
+// n8n memanggil Gemini 3.1 Flash-Lite dan kembalikan { "insight": "..." }
+// Ganti N8N_WEBHOOK_URL dengan URL webhook Anda
+// -------------------------------------------------------
+function getAiInsight(insightPayloadJson) {
+  try {
+    var payload = JSON.parse(insightPayloadJson);
+
+    // ── GANTI URL INI dengan webhook URL dari n8n Anda ──
+    var N8N_WEBHOOK_URL = "https://bse-atmam.app.n8n.cloud/webhook/bes-ai-insight";
+
+    var options = {
+      method:             "post",
+      contentType:        "application/json",
+      payload:            JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+
+    var response   = UrlFetchApp.fetch(N8N_WEBHOOK_URL, options);
+    var statusCode = response.getResponseCode();
+    var body       = response.getContentText();
+
+    console.log("n8n webhook status:", statusCode);
+
+    if (statusCode !== 200) {
+      console.error("n8n error:", body);
+      return { error: true, message: "Webhook error " + statusCode + ": " + body };
+    }
+
+    // n8n return: [{"output":"..."}] atau {"insight":"..."} atau {"output":"..."}
+    var result = JSON.parse(body);
+    var aiText = "";
+    if (Array.isArray(result)) {
+      aiText = (result[0] && (result[0].output || result[0].insight || result[0].text)) || "";
+    } else {
+      aiText = result.insight || result.output || result.text || "";
+    }
+
+    if (!aiText || aiText.trim() === "") {
+      return { error: true, message: "AI tidak menghasilkan teks. Periksa workflow n8n." };
+    }
+
+    // -------------------------------------------------------
+    // Simpan AI insight ke sheet
+    // -------------------------------------------------------
+    try {
+      var ss          = SpreadsheetApp.getActiveSpreadsheet();
+      var dashSheet   = ss.getSheetByName("3_Dashboard_Output");
+      var leadsSheet2 = ss.getSheetByName("4_Leads_Record");
+
+      // Tambah ke 3_Dashboard_Output
+      if (dashSheet) {
+        dashSheet.appendRow(["", ""]);
+        dashSheet.appendRow(["ANALISIS AI (Gemini 3.1 Flash-Lite via n8n)", ""]);
+        dashSheet.appendRow([aiText, ""]);
+      }
+
+      // Tambah/update kolom "Analisis AI" di baris terakhir 4_Leads_Record
+      if (leadsSheet2) {
+        var lastRow   = leadsSheet2.getLastRow();
+        var lastCol   = leadsSheet2.getLastColumn();
+        var headerRow = leadsSheet2.getRange(1, 1, 1, lastCol).getValues()[0];
+        var aiColIdx  = headerRow.indexOf("Analisis AI");
+
+        if (aiColIdx === -1) {
+          var newCol = lastCol + 1;
+          leadsSheet2.getRange(1, newCol).setValue("Analisis AI")
+            .setFontWeight("bold").setBackground("#0f172a").setFontColor("#ffffff");
+          leadsSheet2.setColumnWidth(newCol, 400);
+          leadsSheet2.getRange(lastRow, newCol).setValue(aiText);
+        } else {
+          leadsSheet2.getRange(lastRow, aiColIdx + 1).setValue(aiText);
+        }
+      }
+
+      console.log("AI insight berhasil disimpan ke sheet.");
+    } catch (saveErr) {
+      console.error("Gagal simpan AI insight ke sheet:", saveErr.toString());
+    }
+
+    return { success: true, insight: aiText };
+
+  } catch (err) {
+    console.error("ERROR di getAiInsight:", err.toString());
+    return { error: true, message: err.toString() };
+  }
+}

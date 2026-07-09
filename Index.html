@@ -258,6 +258,37 @@
       </div>
     </div>
 
+    <!-- AI INSIGHT SECTION -->
+    <div id="aiInsightSection" style="margin-top:8px;margin-bottom:8px;">
+      <div style="font-weight:700;font-size:1rem;margin-bottom:12px;color:#1e293b;">🤖 Analisis & Saran AI</div>
+      <div id="aiInsightCard" style="background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);overflow:hidden;">
+        <!-- Loading state -->
+        <div id="aiLoading" style="padding:32px;text-align:center;">
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px;">
+            <div style="width:20px;height:20px;border:3px solid #e0e7ff;border-top-color:#6366f1;border-radius:50%;animation:rot .8s linear infinite;flex-shrink:0;"></div>
+            <span style="font-weight:600;color:#64748b;font-size:.92rem;">AI sedang menganalisis bisnis Anda...</span>
+          </div>
+          <p style="font-size:.8rem;color:#94a3b8;">Biasanya membutuhkan 5–10 detik</p>
+        </div>
+        <!-- Result state (hidden initially) -->
+        <div id="aiResult" style="display:none;">
+          <div style="display:flex;align-items:center;gap:10px;padding:16px 22px;background:linear-gradient(90deg,#1e1b4b,#312e81);color:#fff;">
+            <div style="width:32px;height:32px;background:rgba(99,102,241,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;">🤖</div>
+            <div>
+              <div style="font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;">Analisis AI</div>
+            </div>
+          </div>
+          <div id="aiText" style="padding:24px;font-size:.9rem;line-height:1.75;color:#334155;white-space:pre-wrap;"></div>
+        </div>
+        <!-- Error state (hidden initially) -->
+        <div id="aiError" style="display:none;padding:24px;text-align:center;">
+          <p style="color:#ef4444;font-weight:600;margin-bottom:8px;">⚠️ Gagal mendapatkan analisis AI</p>
+          <p id="aiErrorMsg" style="font-size:.82rem;color:#64748b;margin-bottom:14px;"></p>
+          <button onclick="retryAiInsight()" style="padding:9px 20px;background:#6366f1;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:.85rem;cursor:pointer;">Coba Lagi</button>
+        </div>
+      </div>
+    </div>
+
     <!-- DETAIL BREAKDOWN -->
     <div style="font-weight:700;font-size:1rem;margin-bottom:14px;color:#1e293b;">📊 Rincian per Pilar Bisnis</div>
     <div id="resBreakdown"></div>
@@ -615,9 +646,11 @@ function showResults(results) {
   _lastResults = results;
   _lastProfile = {
     company:  document.getElementById("f-company").value.trim(),
-    industry: getIndustryValue()
+    industry: getIndustryValue(),
+    yearsOp:        document.getElementById("f-years").value.trim(),
+    totalEmployees: document.getElementById("f-emp").value.trim(),
+    revenue:        document.getElementById("f-revenue").value.trim()
   };
-
   // Sembunyikan wizard
   document.getElementById("wizardBar").style.display      = "none";
   document.getElementById("stepsContainer").style.display = "none";
@@ -688,7 +721,67 @@ function showResults(results) {
   });
 
   window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // Panggil AI insight setelah UI tampil
+  loadAiInsight();
 }
+
+// ─── AI INSIGHT ───────────────────────────────────────────────
+function loadAiInsight() {
+  document.getElementById("aiLoading").style.display = "block";
+  document.getElementById("aiResult").style.display  = "none";
+  document.getElementById("aiError").style.display   = "none";
+
+  // Kumpulkan pertanyaan + jawaban aktual per dimensi
+  var answersDetail = [];
+  allQuestions.forEach(function(q) {
+    var radios = document.getElementsByName("q_" + q.id);
+    var val = "No";
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked) { val = radios[i].value; break; }
+    }
+    answersDetail.push({
+      dimension: q.dimension || "General Control",
+      question:  q.text,
+      answer:    val
+    });
+  });
+
+  var insightPayload = JSON.stringify({
+    companyName:    _lastProfile.company        || "",
+    industry:       _lastProfile.industry       || "",
+    yearsOp:        _lastProfile.yearsOp        || "",
+    totalEmployees: _lastProfile.totalEmployees || "",
+    revenue:        _lastProfile.revenue        || "",
+    grandScore:     _lastResults.grandScore,
+    breakdown:      _lastResults.breakdown,
+    answers:        answersDetail
+  });
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      document.getElementById("aiLoading").style.display = "none";
+      if (!res || res.error) {
+        document.getElementById("aiError").style.display  = "block";
+        document.getElementById("aiErrorMsg").textContent = res ? res.message : "Respons tidak valid";
+        return;
+      }
+      // Format **bold** → <strong>
+      var formatted = res.insight
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\n/g, "<br>");
+      document.getElementById("aiText").innerHTML = formatted;
+      document.getElementById("aiResult").style.display = "block";
+    })
+    .withFailureHandler(function(e) {
+      document.getElementById("aiLoading").style.display = "none";
+      document.getElementById("aiError").style.display   = "block";
+      document.getElementById("aiErrorMsg").textContent  = e.message || "Koneksi gagal";
+    })
+    .getAiInsight(insightPayload);
+}
+
+function retryAiInsight() { loadAiInsight(); }
 
 // ─── SHARE & DOWNLOAD ─────────────────────────────────────────
 function downloadPNG() {
