@@ -645,11 +645,12 @@ function showResults(results) {
 
   _lastResults = results;
   _lastProfile = {
-    company:  document.getElementById("f-company").value.trim(),
-    industry: getIndustryValue(),
+    company:        document.getElementById("f-company").value.trim(),
+    industry:       getIndustryValue(),
     yearsOp:        document.getElementById("f-years").value.trim(),
     totalEmployees: document.getElementById("f-emp").value.trim(),
-    revenue:        document.getElementById("f-revenue").value.trim()
+    revenue:        document.getElementById("f-revenue").value.trim(),
+    auditId:        results.auditId || ""
   };
   // Sembunyikan wizard
   document.getElementById("wizardBar").style.display      = "none";
@@ -748,6 +749,7 @@ function loadAiInsight() {
   });
 
   var insightPayload = JSON.stringify({
+    auditId:        _lastProfile.auditId        || "",
     companyName:    _lastProfile.company        || "",
     industry:       _lastProfile.industry       || "",
     yearsOp:        _lastProfile.yearsOp        || "",
